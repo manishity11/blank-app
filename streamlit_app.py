@@ -8,7 +8,7 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 # Load MobileNetV2 model
-mobilenet_model = MobileNetV2(weights="imagenet")
+mobilenet_model = VGG16(weights="imagenet")
 mobilenet_model = Model(inputs=mobilenet_model.inputs, outputs=mobilenet_model.layers[-2].output)
 
 # Load your trained model
