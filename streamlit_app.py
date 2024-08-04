@@ -13,7 +13,7 @@ with open('tokenizer.pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
 # Load the model
-model = load_model('model.h5')
+model = load_model('best_model (1).h5')
 
 # Load the VGG16 model
 vgg_model = VGG16()
