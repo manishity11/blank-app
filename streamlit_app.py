@@ -7,7 +7,6 @@ from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_i
 from keras.applications.vgg16 import VGG16
 import keras
 from tensorflow.keras.applications import MobileNet
-from keras.applications.resnet50 import preprocess_input, decode_predictions
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
