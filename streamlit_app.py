@@ -9,7 +9,7 @@ from PIL import Image
 import pickle
 
 # Load the tokenizer
-with open('tokenizer.pkl', 'rb') as handle:
+with open('tokenizer (1).pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
 # Load the model
