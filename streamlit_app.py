@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.models import Model
 
 # Load the tokenizer and model
-with open('tokenizer.pkl', 'rb') as f:
+with open('features.pkl', 'rb') as f:
     tokenizer = pickle.load(f)
 
 model = load_model('img_caption_model.h5')
