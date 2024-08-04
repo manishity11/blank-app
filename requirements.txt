@@ -85,8 +85,5 @@ watchdog==3.0.0
 Werkzeug==2.3.7
 wrapt==1.14.1
 zipp==3.16.2
-streamlit==1.18.1
-Pillow==9.3.0
-numpy==1.23.1
-tensorflow==2.11.0
+
 
