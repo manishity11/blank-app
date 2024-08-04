@@ -1,71 +1,85 @@
 import streamlit as st
 import numpy as np
 import pickle
-from PIL import Image
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array
+import tensorflow as tf
 from tensorflow.keras.models import Model
+from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-# Load the tokenizer and model
-with open('features.pkl', 'rb') as f:
-    tokenizer = pickle.load(f)
+# Load MobileNetV2 model
+mobilenet_model = MobileNetV2(weights="imagenet")
+mobilenet_model = Model(inputs=mobilenet_model.inputs, outputs=mobilenet_model.layers[-2].output)
 
-model = load_model('img_caption_model.h5')
+# Load your trained model
+model = tf.keras.models.load_model('mymodel.h5')
 
-# Load the ResNet50 model with pre-trained ImageNet weights
-base_model = ResNet50(weights='imagenet')
-model_fe = Model(inputs=base_model.inputs, outputs=base_model.layers[-2].output)
+# Load the tokenizer
+with open('tokenizer.pkl', 'rb') as tokenizer_file:
+    tokenizer = pickle.load(tokenizer_file)
+    
+# Set custom web page title
+st.set_page_config(page_title="Caption Generator App", page_icon="📷")
 
-max_length = 34  # This should be set to the maximum length used in your training
-
-def idx_to_word(integer, tokenizer):
-    for word, index in tokenizer.word_index.items():
-        if index == integer:
-            return word
-    return None
-
-def preprocess_image(image):
-    image = image.resize((224, 224))
-    image = img_to_array(image)
-    image = np.expand_dims(image, axis=0)
-    image = preprocess_input(image)
-    return image
-
-def extract_features(image):
-    image = preprocess_image(image)
-    feature = model_fe.predict(image, verbose=0)
-    return feature
-
-def predict_caption(model, image, tokenizer, max_length):
-    in_text = 'startseq'
-    for i in range(max_length):
-        sequence = tokenizer.texts_to_sequences([in_text])[0]
-        sequence = pad_sequences([sequence], maxlen=max_length)
-        yhat = model.predict([image, sequence], verbose=0)
-        yhat = np.argmax(yhat)
-        word = idx_to_word(yhat, tokenizer)
-        if word is None:
-            break
-        in_text += " " + word
-        if word == 'endseq':
-            break
-    return in_text
-
+# Streamlit app
 st.title("Image Caption Generator")
-st.write("Upload an image to generate a caption")
+st.markdown(
+    "Upload an image, and this app will generate a caption for it using a trained LSTM model."
+)
 
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+# Upload image
+uploaded_image = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
-    st.write("")
-    st.write("Generating caption...")
-    
-    feature = extract_features(image)
-    caption = predict_caption(model, feature, tokenizer, max_length)
-    
-    st.write("Caption:")
-    st.write(caption)
+# Process uploaded image
+if uploaded_image is not None:
+    st.subheader("Uploaded Image")
+    st.image(uploaded_image, caption="Uploaded Image", use_column_width=True)
+
+    st.subheader("Generated Caption")
+    # Display loading spinner while processing
+    with st.spinner("Generating caption..."):
+        # Load image
+        image = load_img(uploaded_image, target_size=(224, 224))
+        image = img_to_array(image)
+        image = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))
+        image = preprocess_input(image)
+
+        # Extract features using VGG16
+        image_features = mobilenet_model.predict(image, verbose=0)
+
+        # Max caption length
+        max_caption_length = 34
+        
+        # Define function to get word from index
+        def get_word_from_index(index, tokenizer):
+            return next(
+                (word for word, idx in tokenizer.word_index.items() if idx == index), None
+        )
+
+        # Generate caption using the model
+        def predict_caption(model, image_features, tokenizer, max_caption_length):
+            caption = "startseq"
+            for _ in range(max_caption_length):
+                sequence = tokenizer.texts_to_sequences([caption])[0]
+                sequence = pad_sequences([sequence], maxlen=max_caption_length)
+                yhat = model.predict([image_features, sequence], verbose=0)
+                predicted_index = np.argmax(yhat)
+                predicted_word = get_word_from_index(predicted_index, tokenizer)
+                caption += " " + predicted_word
+                if predicted_word is None or predicted_word == "endseq":
+                    break
+            return caption
+
+        # Generate caption
+        generated_caption = predict_caption(model, image_features, tokenizer, max_caption_length)
+
+        # Remove startseq and endseq
+        generated_caption = generated_caption.replace("startseq", "").replace("endseq", "")
+
+    # Display the generated caption with custom styling
+    st.markdown(
+        f'<div style="border-left: 6px solid #ccc; padding: 5px 20px; margin-top: 20px;">'
+        f'<p style="font-style: italic;">“{generated_caption}”</p>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
