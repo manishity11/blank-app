@@ -6,6 +6,8 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.applications.mobilenet_v2 import MobileNetV2, preprocess_input
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.applications import VGG16
+
 
 # Load MobileNetV2 model
 mobilenet_model = VGG16(weights="imagenet")
