@@ -52,7 +52,7 @@ if uploaded_image is not None:
         image_features = mobilenet_model.predict(image, verbose=0)
 
         # Max caption length
-        max_caption_length = 34
+        max_caption_length = 35
         
         # Define function to get word from index
         def get_word_from_index(index, tokenizer):
