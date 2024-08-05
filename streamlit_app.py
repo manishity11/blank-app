@@ -4,7 +4,8 @@ import os
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import pad_sequences
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
-from keras.models import load_model
+from tensorflow.keras.models import load_model, Model
+from tensorflow.keras.layers import Dense
 from pickle import load
 import numpy as np
 from PIL import Image
@@ -13,11 +14,13 @@ from PIL import Image
 tokenizer = load(open("tokenizer (2).pkl", "rb"))
 model = load_model('caption_gen.h5')
 
-# Define a function to load the VGG16 model
+# Define a function to load the VGG16 model and add a Dense layer to match the required output shape
 def get_vgg16_model():
     base_model = VGG16(include_top=False, pooling="avg", weights="imagenet")
-    base_model._name = "custom_vgg16"  # Assign a unique name to avoid conflicts
-    return base_model
+    x = Dense(4096, activation='relu')(base_model.output)
+    model = Model(inputs=base_model.inputs, outputs=x)
+    model._name = "custom_vgg16"  # Assign a unique name to avoid conflicts
+    return model
 
 vgg16_model = get_vgg16_model()
 max_length = 35
