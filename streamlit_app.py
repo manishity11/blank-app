@@ -11,7 +11,7 @@ from PIL import Image
 
 # Load models and tokenizer
 tokenizer = load(open("tokenizer.p", "rb"))
-model = load_model('model_9.h5')
+model = load_model('best_model_inception.h5')
 
 # Define a unique name for the Xception model to avoid conflicts
 def get_xception_model():
