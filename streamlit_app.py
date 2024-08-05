@@ -10,17 +10,17 @@ import numpy as np
 from PIL import Image
 
 # Load models and tokenizer
-tokenizer = load(open("tokenizer.p", "rb"))
-model = load_model('model_9.h5')
+tokenizer = load(open("tokenizer (2).pkl", "rb"))
+model = load_model('caption_gen.h5')
 
 # Define a unique name for the Xception model to avoid conflicts
 def get_xception_model():
-    base_model = Xception(include_top=False, pooling="avg", weights="imagenet")
+    base_model = VGG16(include_top=False, pooling="avg", weights="imagenet")
     base_model._name = "custom_xception"  # Assign a unique name to avoid conflicts
     return base_model
 
 xception_model = get_xception_model()
-max_length = 32
+max_length = 35
 
 def extract_features_test(filename, model):
     try:
@@ -28,7 +28,7 @@ def extract_features_test(filename, model):
     except:
         st.error("ERROR: Couldn't open image! Make sure the image path and extension is correct")
         return None
-    image = image.resize((299, 299))
+    image = image.resize((224, 224))
     image = np.array(image)
     if image.shape[2] == 4:
         image = image[..., :3]
