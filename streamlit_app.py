@@ -11,7 +11,7 @@ from PIL import Image
 
 # Load models and tokenizer
 tokenizer = load(open("tokenizer.p", "rb"))
-model = load_model('best_model_inception.h5')
+model = load_model('model_9.h5')
 
 # Define a unique name for the Xception model to avoid conflicts
 def get_xception_model():
@@ -20,7 +20,7 @@ def get_xception_model():
     return base_model
 
 xception_model = get_xception_model()
-max_length = 35
+max_length = 32
 
 def extract_features_test(filename, model):
     try:
