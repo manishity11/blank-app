@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from keras.applications.xception import Xception, preprocess_input 
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -13,7 +14,7 @@ with open('tokenizer.p', 'rb') as handle:
 # Load the model
 model = load_model('model_9.h5')
 # Load the VGG16 model
-vgg_model = VGG16()
+vgg_model = Xception()
 vgg_model = Model(inputs=vgg_model.inputs, outputs=vgg_model.layers[-2].output)
 # Load the max length
 max_length = 35
