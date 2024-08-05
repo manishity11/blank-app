@@ -17,10 +17,10 @@ model = load_model('model_9.h5')
 vgg_model = Xception()
 vgg_model = Model(inputs=vgg_model.inputs, outputs=vgg_model.layers[-2].output)
 # Load the max length
-max_length = 35
+max_length = 32
 # Preprocess the image
 def preprocess_image(image):
-    image = image.resize((224, 224))
+    image = image.resize((299, 299))
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
     image = preprocess_input(image)
