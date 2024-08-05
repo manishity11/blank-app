@@ -20,7 +20,7 @@ def get_xception_model():
     return base_model
 
 xception_model = get_xception_model()
-max_length = 32
+max_length = 35
 
 def extract_features_test(filename, model):
     try:
