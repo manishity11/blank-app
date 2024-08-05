@@ -4,6 +4,7 @@ import os
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import pad_sequences
 from keras.applications.xception import Xception, preprocess_input
+from tensorflow.keras.applications.vgg16 import VGG16 , preprocess_input
 from keras.models import load_model
 from pickle import load
 import numpy as np
