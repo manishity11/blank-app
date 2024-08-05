@@ -8,10 +8,10 @@ from tensorflow.keras.preprocessing.text import Tokenizer
 from PIL import Image
 import pickle
 # Load the tokenizer
-with open('tokenizer (1).pkl', 'rb') as handle:
+with open('tokenizer.p', 'rb') as handle:
     tokenizer = pickle.load(handle)
 # Load the model
-model = load_model('best_model (1).h5')
+model = load_model('model_9.h5')
 # Load the VGG16 model
 vgg_model = VGG16()
 vgg_model = Model(inputs=vgg_model.inputs, outputs=vgg_model.layers[-2].output)
