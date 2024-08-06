@@ -20,8 +20,7 @@ def get_xception_model():
     base_model = Xception(include_top=False, weights="imagenet", input_shape=(299, 299, 3))
     model = tf.keras.models.Sequential([
         base_model,
-        tf.keras.layers.Conv2D(1280, (1, 1), padding='same', activation='relu'),
-        tf.keras.layers.GlobalAveragePooling2D()
+        tf.keras.layers.Conv2D(1280, (1, 1), padding='same', activation='relu')
     ])
     return model
 
@@ -90,6 +89,8 @@ if uploaded_file is not None:
     # Extract features and generate description
     photo = extract_features_test(img_path, xception_model)
     if photo is not None:
+        # Reshape the photo to match the expected input shape of the captioning model
+        photo = np.reshape(photo, (1, 8, 8, 1280))
         description = generate_desc(model, tokenizer, photo, max_length)
         description = clearCaption(description)
         st.write("Caption:", description)
