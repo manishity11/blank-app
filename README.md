@@ -1,4 +1,4 @@
-# 🎈 Blank app template
+#image caption generator
 
 A simple Streamlit app template for you to modify!
 
