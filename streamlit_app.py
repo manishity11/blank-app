@@ -11,8 +11,8 @@ import numpy as np
 from PIL import Image
 
 # Load models and tokenizer
-tokenizer = load(open("tokenizer (2).pkl", "rb"))
-model = load_model('caption_gen.h5')
+tokenizer = load(open("tokenize.p", "rb"))
+model = load_model('qwerty.h5')
 
 # Define a unique name for the Xception model to avoid conflicts
 def get_xception_model():
