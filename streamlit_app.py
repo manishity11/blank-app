@@ -4,28 +4,24 @@ import os
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import pad_sequences
 from keras.applications.xception import Xception, preprocess_input
-from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras.applications.vgg16 import VGG16 , preprocess_input
 from keras.models import load_model
 from pickle import load
 import numpy as np
 from PIL import Image
-import tensorflow as tf
 
 # Load models and tokenizer
 tokenizer = load(open("tokenizer.p", "rb"))
-model = load_model('qwerty.h5')
+model = load_model('model_9.h5')
 
 # Define a unique name for the Xception model to avoid conflicts
 def get_xception_model():
-    base_model = Xception(include_top=False, weights="imagenet", input_shape=(299, 299, 3))
-    model = tf.keras.models.Sequential([
-        base_model,
-        tf.keras.layers.Conv2D(1280, (1, 1), padding='same', activation='relu')
-    ])
-    return model
+    base_model = Xception(include_top=False, pooling="avg", weights="imagenet")
+    base_model._name = "custom_xception"  # Assign a unique name to avoid conflicts
+    return base_model
 
 xception_model = get_xception_model()
-max_length = 35
+max_length = 32
 
 def extract_features_test(filename, model):
     try:
@@ -33,12 +29,13 @@ def extract_features_test(filename, model):
     except:
         st.error("ERROR: Couldn't open image! Make sure the image path and extension is correct")
         return None
-    image = image.resize((299, 299))  # Xception expects 299x299 images
+    image = image.resize((299, 299))
     image = np.array(image)
     if image.shape[2] == 4:
         image = image[..., :3]
     image = np.expand_dims(image, axis=0)
-    image = preprocess_input(image)  # Use Xception's preprocessing function
+    image = image / 127.5
+    image = image - 1.0
     feature = model.predict(image)
     return feature
 
@@ -89,8 +86,6 @@ if uploaded_file is not None:
     # Extract features and generate description
     photo = extract_features_test(img_path, xception_model)
     if photo is not None:
-        # Reshape the photo to match the expected input shape of the captioning model
-        photo = np.reshape(photo, (1, 8, 8, 1280))
         description = generate_desc(model, tokenizer, photo, max_length)
         description = clearCaption(description)
         st.write("Caption:", description)
