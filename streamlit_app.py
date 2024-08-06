@@ -3,38 +3,40 @@ import urllib.request
 import os
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import pad_sequences
-from keras.applications.xception import Xception, preprocess_input
-from keras.models import load_model
+from tensorflow.keras.applications.vgg16 import VGG16, preprocess_input
+from tensorflow.keras.models import load_model, Model
+from tensorflow.keras.layers import Dense
 from pickle import load
 import numpy as np
 from PIL import Image
 
 # Load models and tokenizer
-tokenizer = load(open("tokenizer.p", "rb"))
-model = load_model('model_9.h5')
+tokenizer = load(open("tokenizer (2).pkl", "rb"))
+model = load_model('caption_gen.h5')
 
-# Define a unique name for the Xception model to avoid conflicts
-def get_xception_model():
-    base_model = Xception(include_top=False, pooling="avg", weights="imagenet")
-    base_model._name = "custom_xception"  # Assign a unique name to avoid conflicts
-    return base_model
+# Define a function to load the VGG16 model and add a Dense layer to match the required output shape
+def get_vgg16_model():
+    base_model = VGG16(include_top=False, pooling="avg", weights="imagenet")
+    x = Dense(4096, activation='relu')(base_model.output)
+    model = Model(inputs=base_model.inputs, outputs=x)
+    model._name = "custom_vgg16"  # Assign a unique name to avoid conflicts
+    return model
 
-xception_model = get_xception_model()
-max_length = 32
+vgg16_model = get_vgg16_model()
+max_length = 35
 
-def extract_features_test(filename, model):
+def extract_features(filename, model):
     try:
         image = Image.open(filename)
     except:
         st.error("ERROR: Couldn't open image! Make sure the image path and extension is correct")
         return None
-    image = image.resize((299, 299))
+    image = image.resize((224, 224))
     image = np.array(image)
     if image.shape[2] == 4:
         image = image[..., :3]
     image = np.expand_dims(image, axis=0)
-    image = image / 127.5
-    image = image - 1.0
+    image = preprocess_input(image)
     feature = model.predict(image)
     return feature
 
@@ -83,7 +85,7 @@ if uploaded_file is not None:
     img.save(img_path)
     
     # Extract features and generate description
-    photo = extract_features_test(img_path, xception_model)
+    photo = extract_features(img_path, vgg16_model)
     if photo is not None:
         description = generate_desc(model, tokenizer, photo, max_length)
         description = clearCaption(description)
